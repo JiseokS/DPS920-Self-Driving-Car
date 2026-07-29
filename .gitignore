@@ -216,3 +216,17 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+# DPS920 driving datasets
+dataset/
+data/
+IMG/
+driving_log.csv
+
+# Trained models
+*.h5
+*.keras
+
+# Generated CSV files
+outputs/*.csv
