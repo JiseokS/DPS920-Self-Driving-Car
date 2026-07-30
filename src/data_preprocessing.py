@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Union
+from sklearn.model_selection import train_test_split
 
 import cv2
 import numpy as np
@@ -65,6 +66,23 @@ def load_driving_data(dataset_dir: Union[str, Path]) -> pd.DataFrame:
     print(f"[INFO] Loaded {len(result)} valid driving samples.")
     return result
 
+
+def split_driving_data(data, validation_size=0.2, random_state=42):
+    # Split the data before balancing or augmentation.
+    train_data, validation_data = train_test_split(
+        data,
+        test_size=validation_size,
+        random_state=random_state,
+        shuffle=True,
+    )
+
+    train_data = train_data.reset_index(drop=True)
+    validation_data = validation_data.reset_index(drop=True)
+
+    print(f"[INFO] Training samples: {len(train_data)}")
+    print(f"[INFO] Validation samples: {len(validation_data)}")
+
+    return train_data, validation_data
 
 def load_image(image_path):
     # OpenCV loads images in BGR format.
