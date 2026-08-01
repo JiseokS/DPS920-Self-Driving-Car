@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import Union
-from sklearn.model_selection import train_test_split
+from typing import Tuple, Union
 
 import cv2
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 
 LOG_COLUMNS = [
@@ -19,7 +19,8 @@ LOG_COLUMNS = [
 
 
 def load_driving_data(dataset_dir: Union[str, Path]) -> pd.DataFrame:
-    # Load center-camera paths and steering angles from driving_log.csv.
+    """Load center-camera paths and steering angles from driving_log.csv."""
+
     dataset_path = Path(dataset_dir).expanduser().resolve()
     csv_path = dataset_path / "driving_log.csv"
     image_dir = dataset_path / "IMG"
@@ -67,8 +68,13 @@ def load_driving_data(dataset_dir: Union[str, Path]) -> pd.DataFrame:
     return result
 
 
-def split_driving_data(data, validation_size=0.2, random_state=42):
-    # Split the data before balancing or augmentation.
+def split_driving_data(
+    data: pd.DataFrame,
+    validation_size: float = 0.2,
+    random_state: int = 42,
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Split driving data into training and validation sets."""
+
     train_data, validation_data = train_test_split(
         data,
         test_size=validation_size,
@@ -84,8 +90,10 @@ def split_driving_data(data, validation_size=0.2, random_state=42):
 
     return train_data, validation_data
 
-def load_image(image_path):
-    # OpenCV loads images in BGR format.
+
+def load_image(image_path: Union[str, Path]) -> np.ndarray:
+    """Load an image from a file path and convert it to RGB format."""
+
     image = cv2.imread(str(image_path))
 
     if image is None:
@@ -97,8 +105,9 @@ def load_image(image_path):
     return image
 
 
-def preprocess_image(image):
-    # Crop the image to keep the road area.
+def preprocess_image(image: np.ndarray) -> np.ndarray:
+    """Crop, convert, blur, resize, and normalize a simulator image."""
+
     image = image[60:135, :, :]
 
     if image.size == 0:
