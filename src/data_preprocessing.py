@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Tuple, Union
 
 import cv2
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -89,6 +90,103 @@ def split_driving_data(
     print(f"[INFO] Validation samples: {len(validation_data)}")
 
     return train_data, validation_data
+    
+    
+def plot_steering_distribution(
+    data: pd.DataFrame,
+    output_path: Union[str, Path],
+    bins: int = 25,
+    title: str = "Steering Angle Distribution",
+) -> None:
+    """Save a histogram of the steering-angle distribution."""
+
+    if data.empty:
+        raise ValueError("Cannot plot an empty dataset.")
+
+    if bins <= 0:
+        raise ValueError("The number of bins must be greater than zero.")
+
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    plt.figure(figsize=(10, 5))
+    plt.hist(data["steering"], bins=bins, edgecolor="black")
+    plt.title(title)
+    plt.xlabel("Steering Angle")
+    plt.ylabel("Number of Samples")
+    plt.tight_layout()
+    plt.savefig(output_path)
+    plt.close()
+
+    print(f"[INFO] Saved steering histogram: {output_path}")
+
+
+def balance_steering_data(
+    data: pd.DataFrame,
+    bins: int = 25,
+    max_samples_per_bin: int = 200,
+    random_state: int = 42,
+) -> pd.DataFrame:
+    """Limit the number of training samples in each steering-angle bin."""
+
+    if data.empty:
+        raise ValueError("Cannot balance an empty dataset.")
+
+    if bins <= 0:
+        raise ValueError("The number of bins must be greater than zero.")
+
+    if max_samples_per_bin <= 0:
+        raise ValueError(
+            "The maximum samples per bin must be greater than zero."
+        )
+
+    steering_values = data["steering"].to_numpy()
+
+    # Divide the complete steering range into equal-width bins.
+    bin_edges = np.linspace(
+        steering_values.min(),
+        steering_values.max(),
+        bins + 1,
+    )
+
+    # Assign every sample to one of the steering bins.
+    bin_indices = np.digitize(
+        steering_values,
+        bin_edges[1:-1],
+    )
+
+    balanced_groups = []
+
+    for bin_index in range(bins):
+        group_indices = np.flatnonzero(bin_indices == bin_index)
+        group = data.iloc[group_indices]
+
+        # Keep all samples from small bins and reduce only large bins.
+        if len(group) > max_samples_per_bin:
+            group = group.sample(
+                n=max_samples_per_bin,
+                random_state=random_state + bin_index,
+            )
+
+        balanced_groups.append(group)
+
+    balanced_data = pd.concat(
+        balanced_groups,
+        ignore_index=True,
+    )
+
+    # Shuffle the remaining samples after balancing.
+    balanced_data = balanced_data.sample(
+        frac=1,
+        random_state=random_state,
+    ).reset_index(drop=True)
+
+    print(
+        f"[INFO] Balanced training samples: "
+        f"{len(data)} -> {len(balanced_data)}"
+    )
+
+    return balanced_data
 
 
 def load_image(image_path: Union[str, Path]) -> np.ndarray:
