@@ -60,7 +60,7 @@ def main():
     MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
     steeringNet.save(MODEL_PATH)
 
-    print(f"Model saved to: {MODEL_PATH}")
+    print(f"saved model: {MODEL_PATH}")
 
     return trainingHistory
 

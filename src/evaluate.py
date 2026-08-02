@@ -42,4 +42,4 @@ def plotTrainingHistory(trainingHistory, plotPath: Path = PLOT_PATH):
     plt.savefig(plotPath)
     plt.close()
 
-    print(f"Training graph saved to: {plotPath}")
+    print(f"saved graph: {plotPath}")
