@@ -2,22 +2,39 @@ import argparse
 from pathlib import Path
 
 import cv2
+import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
 from src.data_preprocessing import (
     load_driving_data,
     load_image,
+    plot_steering_distribution,
     preprocess_image,
     split_driving_data,
+    balance_steering_data,
 )
 from src.data_generator import batch_generator
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dataset-dir", required=True)
+parser.add_argument(
+    "--dataset-dir",
+    required=True,
+    nargs="+",
+)
 args = parser.parse_args()
 
-data = load_driving_data(args.dataset_dir)
+datasets = [
+    load_driving_data(dataset_dir)
+    for dataset_dir in args.dataset_dir
+]
+
+data = pd.concat(
+    datasets,
+    ignore_index=True,
+)
+
+print(f"[INFO] Combined driving samples: {len(data)}")
 
 original = load_image(data.loc[0, "image_path"])
 processed = preprocess_image(original)
@@ -51,8 +68,31 @@ print(f"Saved comparison: {output_path}")
 
 train_data, validation_data = split_driving_data(data)
 
-train_generator = batch_generator(
+plot_steering_distribution(
     train_data,
+    "outputs/plots/steering_before_balancing.png",
+    bins=25,
+    title="Training Steering Distribution Before Balancing",
+)
+
+balanced_train_data = balance_steering_data(
+    train_data,
+    bins=25,
+    max_samples_per_bin=200,
+    random_state=42,
+)
+
+plot_steering_distribution(
+    balanced_train_data,
+    "outputs/plots/steering_after_balancing.png",
+    bins=25,
+    title="Training Steering Distribution After Balancing",
+)
+
+assert len(balanced_train_data) <= len(train_data)
+
+train_generator = batch_generator(
+    balanced_train_data,
     batch_size=32,
     is_training=True,
 )

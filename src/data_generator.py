@@ -1,12 +1,20 @@
+from typing import Iterator, Tuple
+
 import numpy as np
+import pandas as pd
 
 from src.data_preprocessing import load_image, preprocess_image
 
 
-def batch_generator(data, batch_size=32, is_training=True):
+def batch_generator(
+    data: pd.DataFrame,
+    batch_size: int = 32,
+    is_training: bool = True,
+) -> Iterator[Tuple[np.ndarray, np.ndarray]]:
+    """Yield batches of processed images and steering angles."""
+    
     if data.empty:
         raise ValueError("Cannot create batches from an empty dataset.")
-
     if batch_size <= 0:
         raise ValueError("Batch size must be greater than zero.")
 
