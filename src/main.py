@@ -1,11 +1,12 @@
 import argparse
 import math
 from pathlib import Path
-
-from src.data_preprocessing import ( load_driving_data, split_driving_data, balance_steering_data,)
+import pandas as pd
+from src.data_preprocessing import load_driving_data, split_driving_data, balance_steering_data
 from src.data_generator import batch_generator
 from src.evaluate import plotTrainingHistory
 from src.model import buildSteeringNet
+
 
 EPOCHS = 10
 BATCH_SIZE = 32
@@ -17,7 +18,7 @@ def getUserOptions():
     Read the values from the command line.
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset-dir", required=True)
+    parser.add_argument("--dataset-dir", required=True, nargs="+")
     parser.add_argument("--epochs", type=int, default=EPOCHS)
     parser.add_argument("--batch-size", type=int, default=BATCH_SIZE)
 
@@ -30,9 +31,13 @@ def main():
     """
     userOptions = getUserOptions()
 
-    drivingData = load_driving_data(userOptions.dataset_dir)
-    trainData, validationData = split_driving_data(drivingData)
+    drivingDataList = []
 
+    for datasetDir in userOptions.dataset_dir:
+        drivingDataList.append(load_driving_data(datasetDir))
+
+    drivingData = pd.concat(drivingDataList, ignore_index=True)
+    trainData, validationData = split_driving_data(drivingData)
     balancedTrainData = balance_steering_data(trainData)
 
     trainBatch = batch_generator(
