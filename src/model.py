@@ -1,3 +1,4 @@
+from typing import Tuple
 from tensorflow.keras import Sequential, layers
 from tensorflow.keras.optimizers import Adam
 
@@ -6,7 +7,7 @@ INPUT_SHAPE = (66, 200, 3)
 LEARNING_RATE = 0.001
 
 
-def buildSteeringNet(cameraShape: tuple[int, int, int] = INPUT_SHAPE, adamSpeed: float = LEARNING_RATE,) -> Sequential:
+def buildSteeringNet(cameraShape: Tuple[int, int, int] = INPUT_SHAPE, adamSpeed: float = LEARNING_RATE,) -> Sequential:
     """
     Build the CNN model for steering angle.
 

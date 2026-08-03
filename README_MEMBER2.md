@@ -59,15 +59,23 @@ dataset/
 
 ## Environment
 
-Use Python 3.10.
+Use the professor/course environment if possible.
 
-Install the needed packages:
+The project should match the course `package_list.txt`.
 
-```powershell
-pip install tensorflow scikit-learn opencv-python matplotlib pandas pillow
+Main versions:
+
+```text
+Python 3.8.12
+TensorFlow 2.3.0
+NumPy 1.21.2
+Pandas 1.2.4
+Scikit-learn 0.24.2
 ```
 
-If TensorFlow shows CPU or oneDNN warnings, it is okay. The code can still run.
+Do not install the newest package versions unless the team agrees.
+
+The `package_list.txt` file is the version reference.
 
 ## Train The Model
 
@@ -94,7 +102,7 @@ python -m src.main --dataset-dir "C:\Users\John Paul\Downloads\DPS920\project\da
 After training, the model is saved here:
 
 ```text
-outputs/models/steering_model.keras
+outputs/models/steering_model.h5
 ```
 
 The training graph is saved here:
@@ -110,7 +118,7 @@ The model file is ignored by Git, so it may need to be shared another way.
 Use this model file:
 
 ```text
-outputs/models/steering_model.keras
+outputs/models/steering_model.h5
 ```
 
 Make sure this model file is on your computer before testing.
@@ -138,7 +146,7 @@ For testing or simulator code, load the model like this:
 ```python
 from tensorflow.keras.models import load_model
 
-model = load_model("outputs/models/steering_model.keras")
+model = load_model("outputs/models/steering_model.h5")
 ```
 
 The image should use the same preprocessing function before prediction.

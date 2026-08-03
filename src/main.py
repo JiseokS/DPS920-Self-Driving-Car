@@ -10,7 +10,7 @@ from src.model import buildSteeringNet
 
 EPOCHS = 10
 BATCH_SIZE = 32
-MODEL_PATH = Path("outputs/models/steering_model.keras")
+MODEL_PATH = Path("outputs/models/steering_model.h5")
 
 
 def getUserOptions():
