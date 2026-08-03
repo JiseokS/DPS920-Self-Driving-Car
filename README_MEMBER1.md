@@ -12,6 +12,9 @@ Contains functions for:
 - Splitting data into training and validation sets
 - Loading simulator images
 - Cropping, converting to YUV, blurring, resizing, and normalizing images
+- Plotting the steering-angle distribution
+- Balancing training data by limiting samples in overrepresented steering bins
+
 
 Processed image output:
 
@@ -24,13 +27,15 @@ Pixel range: 0–1
 ### `src/data_generator.py`
 
 Contains the batch generator used to supply processed images and steering angles.
+Training data is shuffled before each epoch. Validation data keeps its original order.
+Training batches use random augmentation before preprocessing. Validation batches use preprocessing only.
 
 ```text
 Images:          (batch_size, 66, 200, 3)
 Steering angles: (batch_size,)
 ```
 
-Training data is shuffled before each epoch. Validation data keeps its original order.
+
 
 ### `test_pipeline.py`
 
@@ -42,12 +47,26 @@ Tests the current data pipeline, including:
 - Training and validation batches
 - Image shape and pixel range
 - Invalid numerical values
+- Steering distributions before and after balancing
+- Augmentation examples
 
 It also saves a preprocessing comparison image to:
 
 ```text
 outputs/plots/preprocessing_comparison.png
 ```
+
+### `src/augmentation.py`
+
+Contains training image augmentation functions:
+
+- Horizontal flip with steering-angle reversal
+- Brightness adjustment
+- Panning
+- Zooming
+- Small rotation
+
+Augmentation is applied randomly to training batches only. Validation images are not augmented.
 
 ## Testing
 
