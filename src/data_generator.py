@@ -2,6 +2,7 @@ from typing import Iterator, Tuple
 
 import numpy as np
 import pandas as pd
+from src.augmentation import augment_image
 
 from src.data_preprocessing import load_image, preprocess_image
 
@@ -35,11 +36,16 @@ def batch_generator(
 
             for row in batch_data.itertuples(index=False):
                 image = load_image(row.image_path)
+                steering = float(row.steering)
+
+                # Apply augmentation only to part of the training data.
+                if is_training and np.random.random() < 0.5:
+                    image, steering = augment_image(image, steering)
+
                 image = preprocess_image(image)
 
                 images.append(image)
-                steering_angles.append(row.steering)
-
+                steering_angles.append(steering)
             yield (
                 np.array(images, dtype=np.float32),
                 np.array(steering_angles, dtype=np.float32),
