@@ -6,6 +6,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+from src.augmentation import (
+    adjust_brightness,
+    flip_image,
+    pan_image,
+    rotate_image,
+    zoom_image,
+)
+
 from src.data_preprocessing import (
     load_driving_data,
     load_image,
@@ -65,6 +73,65 @@ plt.close()
 print(f"Original shape: {original.shape}")
 print(f"Processed shape: {processed.shape}")
 print(f"Saved comparison: {output_path}")
+
+# Select a sample with a visible steering angle.
+turning_samples = data[data["steering"].abs() > 0.05]
+
+if turning_samples.empty:
+    augmentation_sample = data.iloc[0]
+else:
+    augmentation_sample = turning_samples.iloc[0]
+
+augmentation_original = load_image(augmentation_sample["image_path"])
+original_steering = float(augmentation_sample["steering"])
+
+# Use a fixed seed so the saved result is reproducible.
+np.random.seed(42)
+
+flipped_image, flipped_steering = flip_image(
+    augmentation_original,
+    original_steering,
+)
+
+augmentation_results = [
+    ("Original", augmentation_original, original_steering),
+    ("Flip", flipped_image, flipped_steering),
+    (
+        "Brightness",
+        adjust_brightness(augmentation_original.copy()),
+        original_steering,
+    ),
+    ("Pan", pan_image(augmentation_original.copy()), original_steering),
+    ("Zoom", zoom_image(augmentation_original.copy()), original_steering),
+    (
+        "Rotation",
+        rotate_image(augmentation_original.copy()),
+        original_steering,
+    ),
+]
+
+augmentation_output_path = Path(
+    "outputs/plots/augmentation_examples.png"
+)
+
+plt.figure(figsize=(12, 7))
+
+for index, (name, image, steering) in enumerate(
+    augmentation_results,
+    start=1,
+):
+    assert image.shape == augmentation_original.shape
+
+    plt.subplot(2, 3, index)
+    plt.imshow(image)
+    plt.title(f"{name}\nSteering: {steering:.3f}")
+    plt.axis("off")
+
+plt.tight_layout()
+plt.savefig(augmentation_output_path)
+plt.close()
+
+print(f"Saved augmentation examples: {augmentation_output_path}")
 
 train_data, validation_data = split_driving_data(data)
 
