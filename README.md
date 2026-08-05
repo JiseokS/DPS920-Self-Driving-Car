@@ -4,4 +4,4 @@
 - John Paul Alvarez
 - Viet Pham
 ## Video Demo
-[Test 1](https://youtu.be/HckSYoytFc8?si=t2TT4saqgwU2JWFT)
+[Watch the video](https://youtu.be/HckSYoytFc8?si=t2TT4saqgwU2JWFT)
